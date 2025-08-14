@@ -1,9 +1,7 @@
 from functools import lru_cache
 from typing import List
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
-
+from pydantic import Field, field_validator
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
@@ -19,11 +17,17 @@ class Settings(BaseSettings):
 
     ALLOWED_ORIGINS: List[str] = Field(default_factory=list, description="CORS origins")
 
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def split_origins(cls, v):
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
+
     @property
     def is_prod(self) -> bool:
         return self.ENV.lower() == "prod"
 
-
 @lru_cache
-def get_settings() -> Settings:
+def get_settings() -> "Settings":
     return Settings()  # type: ignore[call-arg]
