@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List
+from typing import List, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, field_validator
 
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(..., description="JWT signing key (use RS256 in prod)")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
 
-    ALLOWED_ORIGINS: List[str] = Field(default_factory=list, description="CORS origins")
+    ALLOWED_ORIGINS: Union[str, List[str]] = Field(default_factory=list, description="CORS origins")
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
